@@ -1,42 +1,21 @@
+normalize = dict(type='SyncBN', frozen=False)
 # model settings
 model = dict(
     type='FasterRCNN',
-    pretrained='hrnetv2_pretrained/hrnetv2_w18_imagenet_pretrained.pth',
+    pretrained='/hdfs/resrchvc/v-tich/.torch/models/resnet50-19c8e357.pth',
     backbone=dict(
-        type='SyncHighResolutionNet',
-        extra=dict(
-            stage1=dict(
-                num_modules=1,
-                num_branches=1,
-                block='BOTTLENECK',
-                num_blocks=(4,),
-                num_channels=(64,),
-                fuse_method='SUM'),
-            stage2=dict(
-                num_modules=1,
-                num_branches=2,
-                block='BASIC',
-                num_blocks=(4, 4),
-                num_channels=(18, 36),
-                fuse_method='SUM'),
-            stage3=dict(
-                num_modules=4,
-                num_branches=3,
-                block='BASIC',
-                num_blocks=(4, 4, 4),
-                num_channels=(18, 36, 72),
-                fuse_method='SUM'),
-            stage4=dict(
-                num_modules=3,
-                num_branches=4,
-                block='BASIC',
-                num_blocks=(4, 4, 4, 4),
-                num_channels=(18, 36, 72, 144),
-                fuse_method='SUM'))),
+        type='ResNet',
+        depth=50,
+        num_stages=4,
+        out_indices=(0, 1, 2, 3),
+        frozen_stages=1,
+        style='pytorch',
+        normalize=normalize),
     neck=dict(
-        type='HRFPN',
-        in_channels=[18, 36, 72, 144],
-        out_channels=256),
+        type='FPN',
+        in_channels=[256, 512, 1024, 2048],
+        out_channels=256,
+        num_outs=5),
     rpn_head=dict(
         type='RPNHead',
         in_channels=256,
@@ -109,17 +88,11 @@ test_cfg = dict(
     # soft-nms is also supported for rcnn testing
     # e.g., nms=dict(type='soft_nms', iou_thr=0.5, min_score=0.05)
 )
-# NOTE:
 # dataset settings
-# if you use zip format to store all images of coco, please use CocoZipDataset
 dataset_type = 'CocoZipDataset'
 data_root = '/hdfs/resrchvc/v-tich/cls/data/coco/'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=False)
-# else
-# dataset_type = 'CocoDataset'
-# data_root = 'data/coco/'
-# img_norm_cfg = dict(mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 data = dict(
     imgs_per_gpu=4,
     workers_per_gpu=8,
@@ -127,7 +100,7 @@ data = dict(
         type=dataset_type,
         ann_file=data_root + 'annotations/instances_train2017.json',
         img_prefix=data_root + 'images/train2017.zip',
-        img_scale=[(600, 480), (1000, 600),(1333, 800)],
+        img_scale=(1333, 800),
         img_norm_cfg=img_norm_cfg,
         size_divisor=32,
         flip_ratio=0.5,
@@ -148,7 +121,7 @@ data = dict(
     test=dict(
         type=dataset_type,
         ann_file=data_root + 'annotations/instances_val2017.json',
-        img_prefix=data_root + 'images/val2017.zip',
+        img_prefix=data_root + 'val2017/',
         img_scale=(1333, 800),
         img_norm_cfg=img_norm_cfg,
         size_divisor=32,
@@ -157,7 +130,6 @@ data = dict(
         with_label=False,
         test_mode=True))
 # optimizer
-# if you use 8 GPUs for training, please change lr to 0.02
 optimizer = dict(type='SGD', lr=0.02, momentum=0.9, weight_decay=0.0001)
 optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2))
 # learning policy
@@ -173,14 +145,14 @@ log_config = dict(
     interval=50,
     hooks=[
         dict(type='TextLoggerHook'),
-        dict(type='TensorboardLoggerHook')
+        # dict(type='TensorboardLoggerHook')
     ])
 # yapf:enable
 # runtime settings
 total_epochs = 12
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/faster_rcnn_hrnetv2p_w18_sync_1x'
+work_dir = './work_dirs/faster_rcnn_r50_fpn_new_sync_1x'
 load_from = None
 resume_from = None
 workflow = [('train', 1)]

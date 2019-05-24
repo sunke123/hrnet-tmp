@@ -127,7 +127,7 @@ data = dict(
         type=dataset_type,
         ann_file=data_root + 'annotations/instances_train2017.json',
         img_prefix=data_root + 'images/train2017.zip',
-        img_scale=[(1667, 1000), (1000, 600),(1333, 800)],
+        img_scale=[(1667, 1000), (1000, 600), (1333, 800)],
         img_norm_cfg=img_norm_cfg,
         size_divisor=32,
         flip_ratio=0.5,
@@ -180,7 +180,7 @@ log_config = dict(
 total_epochs = 12
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/faster_rcnn_hrnetv2p_w18_sync_8batch_1x'
+work_dir = './work_dirs/faster_rcnn_hrnetv2p_w18_mstrain_sync_16batch_1x'
 load_from = None
 resume_from = None
 workflow = [('train', 1)]
