@@ -10,7 +10,7 @@ DATAFORM='zip'
 mkdir /tmp/cache/python/lib/
 mkdir /tmp/cache/python/lib/python3.6/
 mkdir /tmp/cache/python/lib/python3.6/site-packages/
-python setup.py install --user
+python setup.py build develop --user
 
 # parsing command line arguments:
 while [[ $# > 0 ]]
