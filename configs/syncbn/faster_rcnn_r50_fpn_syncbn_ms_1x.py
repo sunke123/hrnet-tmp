@@ -1,3 +1,4 @@
+normalize = dict(type='SyncBN', frozen=False)
 # model settings
 model = dict(
     type='FasterRCNN',
@@ -8,7 +9,8 @@ model = dict(
         num_stages=4,
         out_indices=(0, 1, 2, 3),
         frozen_stages=1,
-        style='pytorch'),
+        style='pytorch',
+        normalize=normalize),
     neck=dict(
         type='FPN',
         in_channels=[256, 512, 1024, 2048],
@@ -150,7 +152,7 @@ log_config = dict(
 total_epochs = 12
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/faster_rcnn_r50_fpn_new_mstrain_1x'
+work_dir = './work_dirs/faster_rcnn_r50_fpn_new_syncbn_mstrain_1x'
 load_from = None
 resume_from = None
 workflow = [('train', 1)]
