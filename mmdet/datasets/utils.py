@@ -60,9 +60,6 @@ def random_scale(img_scales, mode='range'):
         elif mode == 'value':
             img_scale = img_scales[np.random.randint(num_scales)]
     else:
-        if mode != 'value':
-            raise ValueError(
-                'Only "value" mode supports more than 2 image scales')
         img_scale = img_scales[np.random.randint(num_scales)]
     return img_scale
 
