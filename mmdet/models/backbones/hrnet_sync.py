@@ -28,10 +28,9 @@ import torch.nn as nn
 from mmcv.cnn import constant_init, kaiming_init
 from mmcv.runner import load_checkpoint
 from apex.parallel import SyncBatchNorm
-
+from torch.utils.checkpoint import checkpoint
 import torch.nn.functional as F
 from ..registry import BACKBONES
-
 BatchNorm2d = nn.BatchNorm2d
 
 BN_MOMENTUM = 0.1
@@ -95,16 +94,25 @@ class Bottleneck(nn.Module):
 
     def forward(self, x):
         residual = x
-
-        out = self.conv1(x)
+        if x.requires_grad:
+            out = checkpoint(self.conv1, x)
+        else:
+            out = self.conv1(x)
         out = self.bn1(out)
         out = self.relu(out)
 
-        out = self.conv2(out)
+        if out.requires_grad:
+            out = checkpoint(self.conv2, out)
+        else:
+            out = self.conv2(out)
+
         out = self.bn2(out)
         out = self.relu(out)
 
-        out = self.conv3(out)
+        if out.requires_grad:
+            out = checkpoint(self.conv3, out)
+        else:
+            out = self.conv3(out)
         out = self.bn3(out)
 
         if self.downsample is not None:
@@ -239,7 +247,6 @@ class HighResolutionModule(nn.Module):
 
         for i in range(self.num_branches):
             x[i] = self.branches[i](x[i])
-
         x_fuse = []
         for i in range(len(self.fuse_layers)):
             if i == 0:
