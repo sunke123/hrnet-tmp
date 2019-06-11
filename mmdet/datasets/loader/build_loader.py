@@ -1,7 +1,7 @@
 from functools import partial
 
 from mmcv.runner import get_dist_info
-from mmcv.parallel import collate
+from .collate import collate
 from torch.utils.data import DataLoader
 
 from .sampler import GroupSampler, DistributedGroupSampler
@@ -17,6 +17,7 @@ def build_dataloader(dataset,
                      workers_per_gpu,
                      num_gpus=1,
                      dist=True,
+                     pad=False,
                      **kwargs):
     if dist:
         rank, world_size = get_dist_info()
@@ -37,7 +38,7 @@ def build_dataloader(dataset,
         batch_size=batch_size,
         sampler=sampler,
         num_workers=num_workers,
-        collate_fn=partial(collate, samples_per_gpu=imgs_per_gpu),
+        collate_fn=partial(collate, samples_per_gpu=imgs_per_gpu, pad_img=pad),
         pin_memory=False,
         **kwargs)
 
