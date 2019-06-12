@@ -80,7 +80,7 @@ def main():
 
     model = build_detector(
         cfg.model, train_cfg=cfg.train_cfg, test_cfg=cfg.test_cfg)
-    print("-----")
+
     train_dataset = get_dataset(cfg.data.train)
     train_detector(
         model,

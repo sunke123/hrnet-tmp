@@ -1,7 +1,7 @@
 # model settings
 model = dict(
     type='FasterRCNN',
-    pretrained='hrnetv2_pretrained/hrnetv2_w32_imagenet_pretrained.pth',
+    pretrained='/mnt/workspace/hrnetv2_w32_imagenet_pretrained.pth',
     backbone=dict(
         type='SyncHighResolutionNet',
         extra=dict(
@@ -35,6 +35,7 @@ model = dict(
                 fuse_method='SUM'))),
     neck=dict(
         type='HRFPN',
+        with_checkpoint=True,
         in_channels=[32, 64, 128, 256],
         out_channels=256),
     rpn_head=dict(
@@ -128,7 +129,7 @@ data = dict(
         type=dataset_type,
         ann_file=data_root + 'annotations/instances_train2017.json',
         img_prefix=data_root + 'train2017.zip',
-        img_scale=[(1660, 1000), (1000, 600), (1333, 800)],
+        img_scale=[(1400, 1000), (1000, 600), (1333, 800)],
         img_norm_cfg=img_norm_cfg,
         size_divisor=32,
         flip_ratio=0.5,
