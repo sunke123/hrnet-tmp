@@ -54,7 +54,7 @@ def load_images(filename):
 def load_img(filename, zipfilename):
 
     with zipfile.ZipFile(zipfilename, 'r') as f:
-        data = io.BytesIO(f.read(filename))
+        data = io.BytesIO(f.read(osp.basename(zipfilename).replace('.zip', '')+'/'+filename))
         img = Image.open(data).convert('RGB')
         img = np.array(img, dtype=np.float32)
 

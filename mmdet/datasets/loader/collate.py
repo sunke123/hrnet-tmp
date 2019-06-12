@@ -42,11 +42,11 @@ def collate(batch, samples_per_gpu=1, pad_img=False):
                     w = max(w, sample.size(2))
                 aspect_ratio = h / w
                 if aspect_ratio >= 1.0:
-                    h = 1600
+                    h = 1408
                     w = 1024
                 else:
                     h = 1024
-                    w = 1600
+                    w = 1408
                 padded_samples = [
                     F.pad(
                         sample.data,
