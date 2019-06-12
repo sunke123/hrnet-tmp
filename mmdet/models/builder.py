@@ -1,5 +1,6 @@
 import mmcv
 from torch import nn
+from mmcv.parallel import MMDataParallel, MMDistributedDataParallel
 
 from .registry import BACKBONES, NECKS, ROI_EXTRACTORS, HEADS, DETECTORS
 
@@ -48,4 +49,6 @@ def build_head(cfg):
 
 
 def build_detector(cfg, train_cfg=None, test_cfg=None):
-    return build(cfg, DETECTORS, dict(train_cfg=train_cfg, test_cfg=test_cfg))
+    model = build(cfg, DETECTORS, dict(train_cfg=train_cfg, test_cfg=test_cfg))
+    model = MMDistributedDataParallel(model)
+    return model

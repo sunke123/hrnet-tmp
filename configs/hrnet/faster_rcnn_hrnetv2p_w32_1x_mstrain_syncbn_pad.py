@@ -113,7 +113,7 @@ test_cfg = dict(
 # dataset settings
 # if you use zip format to store all images of coco, please use CocoZipDataset
 dataset_type = 'CocoZipDataset'
-data_root = '/mnt/workspace/data/coco'
+data_root = '/mnt/workspace/data/coco/'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=False)
 # else
