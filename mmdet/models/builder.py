@@ -50,5 +50,4 @@ def build_head(cfg):
 
 def build_detector(cfg, train_cfg=None, test_cfg=None):
     model = build(cfg, DETECTORS, dict(train_cfg=train_cfg, test_cfg=test_cfg))
-    model = MMDistributedDataParallel(model)
     return model
