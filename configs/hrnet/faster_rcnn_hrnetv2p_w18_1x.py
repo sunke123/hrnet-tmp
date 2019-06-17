@@ -1,7 +1,7 @@
 # model settings
 model = dict(
     type='FasterRCNN',
-    pretrained='hrnetv2_pretrained/hrnetv2_w18_imagenet_pretrained.pth',
+    pretrained='/mnt/workspace/hrnetv2_pretrained/hrnetv2_w18_imagenet_pretrained.pth',
     backbone=dict(
         type='HighResolutionNet',
         extra=dict(
@@ -158,7 +158,7 @@ data = dict(
         test_mode=True))
 # optimizer
 # if you use 8 GPUs for training, please change lr to 0.02
-optimizer = dict(type='SGD', lr=0.01, momentum=0.9, weight_decay=0.0001)
+optimizer = dict(type='SGD', lr=0.02, momentum=0.9, weight_decay=0.0001)
 optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2))
 # learning policy
 lr_config = dict(
