@@ -10,8 +10,8 @@ from mmcv.runner import get_dist_info
 
 
 def init_dist(launcher, backend='nccl', **kwargs):
-    if mp.get_start_method(allow_none=True) is None:
-        mp.set_start_method('spawn')
+    #if mp.get_start_method(allow_none=True) is None:
+    #    mp.set_start_method('spawn')
     if launcher == 'pytorch':
         _init_dist_pytorch(backend, **kwargs)
     elif launcher == 'mpi':
@@ -27,7 +27,9 @@ def _init_dist_pytorch(backend, **kwargs):
     rank = int(os.environ['RANK'])
     num_gpus = torch.cuda.device_count()
     torch.cuda.set_device(rank % num_gpus)
-    dist.init_process_group(backend=backend, **kwargs)
+    dist.init_process_group(backend='nccl',
+                            init_method='tcp://10.0.6.13:23333',
+                            rank=rank, world_size=int(os.environ['WORLD_SIZE']))
 
 
 def _init_dist_mpi(backend, **kwargs):

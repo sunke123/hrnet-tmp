@@ -63,10 +63,16 @@ class DistEvalHook(Hook):
     def after_train_epoch(self, runner):
         if not self.every_n_epochs(runner, self.interval):
             return
+        # rank = int(os.environ['RANK'])
+        num_gpus = torch.cuda.device_count()
+        if runner.rank >= num_gpus:
+            return
+        eval_world_size = num_gpus
+
         runner.model.eval()
         results = [None for _ in range(len(self.dataset))]
         prog_bar = mmcv.ProgressBar(len(self.dataset))
-        for idx in range(runner.rank, len(self.dataset), runner.world_size):
+        for idx in range(runner.rank, len(self.dataset), eval_world_size):
             data = self.dataset[idx]
             data_gpu = scatter(
                 collate([data], samples_per_gpu=1),
@@ -78,17 +84,17 @@ class DistEvalHook(Hook):
                     return_loss=False, rescale=True, **data_gpu)
             results[idx] = result
 
-            batch_size = runner.world_size
+            batch_size = eval_world_size
             for _ in range(batch_size):
                 prog_bar.update()
 
         if runner.rank == 0:
             print('\n')
-            self._barrier(runner.rank, runner.world_size)
-            for i in range(1, runner.world_size):
+            self._barrier(runner.rank, eval_world_size)
+            for i in range(1, eval_world_size):
                 tmp_file = osp.join(runner.work_dir, 'temp_{}.pkl'.format(i))
                 tmp_results = mmcv.load(tmp_file)
-                for idx in range(i, len(results), runner.world_size):
+                for idx in range(i, len(results), eval_world_size):
                     results[idx] = tmp_results[idx]
                 os.remove(tmp_file)
             self.evaluate(runner, results)
@@ -96,8 +102,8 @@ class DistEvalHook(Hook):
             tmp_file = osp.join(runner.work_dir,
                                 'temp_{}.pkl'.format(runner.rank))
             mmcv.dump(results, tmp_file)
-            self._barrier(runner.rank, runner.world_size)
-        self._barrier(runner.rank, runner.world_size)
+            self._barrier(runner.rank, eval_world_size)
+        self._barrier(runner.rank, eval_world_size)
 
     def evaluate(self):
         raise NotImplementedError

@@ -35,6 +35,8 @@ esac
 shift # past argument or value
 done
 
+
+export NCCL_IB_DISABLE=1
 echo "==> train"
 echo $PWD
 python -m torch.distributed.launch --nproc_per_node=4 tools/train.py ${CFG} --launcher pytorch

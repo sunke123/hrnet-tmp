@@ -1,5 +1,5 @@
 from __future__ import division
-
+import os
 from collections import OrderedDict
 
 import torch
@@ -69,8 +69,11 @@ def _dist_train(model, dataset, cfg, validate=False):
             pad=cfg.data.pad_img,
             dist=True)
     ]
+    rank = int(os.environ['RANK'])     
+    num_gpus = torch.cuda.device_count()
     # put model on gpus
-    model = MMDistributedDataParallel(model.cuda())
+    model = MMDistributedDataParallel(model.cuda(rank % num_gpus))
+    torch.cuda.empty_cache()
     # build runner
     runner = Runner(model, batch_processor, cfg.optimizer, cfg.work_dir,
                     cfg.log_level)
