@@ -193,9 +193,9 @@ class RandomResizeCrop(object):
             crop_w, crop_h = self.size[0], self.size[1]
 
         # random select a box
-        # rand_index = random.randint(0, len(bboxes)-1)
-        # box = bboxes[rand_index]
-        box = random.choice(bboxes)
+        rand_index = np.random.randint(len(bboxes))# random.randint(0, len(bboxes)-1)
+        box = bboxes[rand_index]
+        # box = random.choice(bboxes)
         ctr_x = ((box[0] + box[2]) / 2.0).item()
         ctr_y = ((box[1] + box[3]) / 2.0).item()
 
