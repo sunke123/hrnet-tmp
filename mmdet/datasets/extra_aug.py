@@ -1,6 +1,10 @@
 import mmcv
 import numpy as np
 from numpy import random
+from PIL import Image
+
+# import torch.nn.functional as F
+from torchvision.transforms import functional as F
 
 from mmdet.core.evaluation.bbox_overlaps import bbox_overlaps
 
@@ -143,12 +147,131 @@ class RandomCrop(object):
                 return img, boxes, labels
 
 
+class RandomResizeCrop(object):
+
+    def __init__(self, scales, size):
+        self.size = size
+        self.scales = scales
+
+    def __call__(self, image, bboxes, labels):
+        """random resize crop
+        Args:
+            image: numpy array
+            bboxes: [N,4]
+            labels: [N, 1]
+        """
+        # target.convert('xyxy')
+        # boxes = target.bbox
+        # labels = target.get_field('labels')
+
+        # random resize
+        origin_height, origin_width, _ = image.shape
+        image = Image.fromarray(image)
+        scale_ind = random.randint(0, len(self.scales)-1)
+        scale = self.scales[scale_ind]
+        origin_max_size = float(max(origin_width, origin_height))
+        origin_min_size = float(min(origin_width, origin_height))
+        min_size = scale[1]
+        max_size = scale[0]
+
+        if origin_max_size / origin_min_size * min_size > max_size:
+            min_size = int(round(max_size / origin_max_size * origin_min_size))
+
+        if origin_height > origin_width:
+            img_width = min_size
+            img_height = int(min_size / origin_width * origin_height)
+        else:
+            img_height = min_size
+            img_width = int(min_size / origin_height * origin_width)
+
+        image = F.resize(image, (img_height, img_width))
+
+        # random crop
+        if img_height > img_width:
+            crop_h, crop_w = self.size[0], self.size[1]
+        else:
+            crop_w, crop_h = self.size[0], self.size[1]
+
+        # random select a box
+        rand_index = random.randint(0, len(bboxes)-1)
+        box = bboxes[rand_index]
+        ctr_x = ((box[0] + box[2]) / 2.0).item()
+        ctr_y = ((box[1] + box[3]) / 2.0).item()
+
+        noise_h = random.randint(-10, 10)
+        noise_w = random.randint(-30, 30)
+        start_h = int(round(ctr_y - crop_h / 2)) + noise_h
+        start_w = int(round(ctr_x - crop_w / 2)) + noise_w
+        end_h = start_h + crop_h
+        end_w = start_w + crop_w
+
+        if start_h < 0:
+            off = -start_h
+            start_h += off
+            end_h += off
+        if start_w < 0:
+            off = -start_w
+            start_w += off
+            end_w += off
+        if end_h > img_height:
+            off = end_h - img_height
+            end_h -= off
+            start_h -= off
+        if end_w > img_width:
+            off = end_w - img_width
+            end_w -= off
+            start_w -= off
+
+        crop_rect = (start_w, start_h, end_w, end_h)
+
+        box_center_x = (bboxes[:, 2] + bboxes[:, 0]) / 2.0
+        box_center_y = (bboxes[:, 3] + bboxes[:, 1]) / 2.0
+
+        mask_x = (box_center_x > crop_rect[0]) * (box_center_x < crop_rect[2])
+        mask_y = (box_center_y > crop_rect[1]) * (box_center_y < crop_rect[3])
+        mask = mask_x * mask_y
+
+        bboxes = bboxes[mask]
+        bboxes[:, 0] -= crop_rect[0]
+        bboxes[:, 2] -= crop_rect[0]
+        bboxes[:, 1] -= crop_rect[1]
+        bboxes[:, 3] -= crop_rect[1]
+        labels = labels[mask]
+
+        # clip
+        bboxes[0] = bboxes[0].clip(min=0, max=crop_w)
+        bboxes[1] = bboxes[1].clip(min=0, max=crop_h)
+        bboxes[2] = bboxes[2].clip(min=0, max=crop_w)
+        bboxes[3] = bboxes[3].clip(min=0, max=crop_h)
+
+        keep = (bboxes[:, 3] > bboxes[:, 1]) & (bboxes[:, 2] > bboxes[:, 0])
+        bboxes = bboxes[keep]
+        labels = labels[keep]
+
+        # new_target = BoxList(boxes, (crop_w, crop_h), mode='xyxy')
+        # new_target.add_field('labels', labels)
+        # new_target.clip_to_image(remove_empty=True)
+        image = F.crop(image, start_h, start_w, crop_h, crop_w)
+
+        # pad to fixed shape
+        # if img_height > img_width:
+        #    target_h, target_w = self.size[0], self.size[1]
+        #else:
+        #    target_w, target_h = self.size[0], self.size[1]
+
+        # padding = (0, 0, target_h - crop_h, target_w - crop_w)
+        # image = F.pad(image, padding)
+        image = np.array(image).astype(np.float32)
+        return image, bboxes, labels
+
+
 class ExtraAugmentation(object):
 
     def __init__(self,
                  photo_metric_distortion=None,
                  expand=None,
-                 random_crop=None):
+                 random_crop=None,
+                 rand_resize_crop=None):
         self.transforms = []
         if photo_metric_distortion is not None:
             self.transforms.append(
@@ -157,6 +280,8 @@ class ExtraAugmentation(object):
             self.transforms.append(Expand(**expand))
         if random_crop is not None:
             self.transforms.append(RandomCrop(**random_crop))
+        if rand_resize_crop is not None:
+            self.transforms.append(RandomResizeCrop(**rand_resize_crop))
 
     def __call__(self, img, boxes, labels):
         img = img.astype(np.float32)
