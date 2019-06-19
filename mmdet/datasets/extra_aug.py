@@ -192,6 +192,9 @@ class RandomResizeCrop(object):
         else:
             crop_w, crop_h = self.size[0], self.size[1]
 
+        crop_w = min(crop_w, img_width)
+        crop_h = min(crop_h, img_height)
+
         # random select a box
         rand_index = np.random.randint(len(bboxes))# random.randint(0, len(bboxes)-1)
         box = bboxes[rand_index]
