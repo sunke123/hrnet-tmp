@@ -36,17 +36,18 @@ def collate(batch, samples_per_gpu=1, pad_img=False):
                 # TODO: handle tensors other than 3d
                 assert batch[i].dim() == 3
                 c, h, w = batch[0].size()
+                print("H: {} W: {}".format(h, w))
                 for sample in batch[i:i + samples_per_gpu]:
                     assert c == sample.size(0)
                     h = max(h, sample.size(1))
                     w = max(w, sample.size(2))
-                #aspect_ratio = h / w
-                #if aspect_ratio >= 1.0:
-                #    h = 1408
-                #    w = 1024
-                #else:
-                #    h = 1024
-                #    w = 1408
+                aspect_ratio = h / w
+                if aspect_ratio >= 1.0:
+                   h = 1216
+                   w = 800
+                else:
+                   h = 800
+                   w = 1216
                 padded_samples = [
                     F.pad(
                         sample.data,

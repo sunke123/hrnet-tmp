@@ -166,7 +166,7 @@ class RandomResizeCrop(object):
 
         # random resize
         origin_height, origin_width, _ = image.shape
-        image = Image.fromarray(image)
+        image = Image.fromarray(image.astype(np.uint8))
         scale_ind = random.randint(0, len(self.scales)-1)
         scale = self.scales[scale_ind]
         origin_max_size = float(max(origin_width, origin_height))
@@ -256,7 +256,7 @@ class RandomResizeCrop(object):
         # pad to fixed shape
         # if img_height > img_width:
         #    target_h, target_w = self.size[0], self.size[1]
-        #else:
+        # else:
         #    target_w, target_h = self.size[0], self.size[1]
 
         # padding = (0, 0, target_h - crop_h, target_w - crop_w)
