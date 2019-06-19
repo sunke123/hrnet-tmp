@@ -193,65 +193,61 @@ class RandomResizeCrop(object):
             crop_w, crop_h = self.size[0], self.size[1]
 
         # random select a box
-        while True:
-            rand_index = random.randint(0, len(bboxes)-1)
-            box = bboxes[rand_index]
-            ctr_x = ((box[0] + box[2]) / 2.0).item()
-            ctr_y = ((box[1] + box[3]) / 2.0).item()
+        rand_index = random.randint(0, len(bboxes)-1)
+        box = bboxes[rand_index]
+        ctr_x = ((box[0] + box[2]) / 2.0).item()
+        ctr_y = ((box[1] + box[3]) / 2.0).item()
 
-            noise_h = random.randint(-10, 10)
-            noise_w = random.randint(-30, 30)
-            start_h = int(round(ctr_y - crop_h / 2)) + noise_h
-            start_w = int(round(ctr_x - crop_w / 2)) + noise_w
-            end_h = start_h + crop_h
-            end_w = start_w + crop_w
+        noise_h = random.randint(-10, 10)
+        noise_w = random.randint(-30, 30)
+        start_h = int(round(ctr_y - crop_h / 2)) + noise_h
+        start_w = int(round(ctr_x - crop_w / 2)) + noise_w
+        end_h = start_h + crop_h
+        end_w = start_w + crop_w
 
-            if start_h < 0:
-                off = -start_h
-                start_h += off
-                end_h += off
-            if start_w < 0:
-                off = -start_w
-                start_w += off
-                end_w += off
-            if end_h > img_height:
-                off = end_h - img_height
-                end_h -= off
-                start_h -= off
-            if end_w > img_width:
-                off = end_w - img_width
-                end_w -= off
-                start_w -= off
+        if start_h < 0:
+            off = -start_h
+            start_h += off
+            end_h += off
+        if start_w < 0:
+            off = -start_w
+            start_w += off
+            end_w += off
+        if end_h > img_height:
+            off = end_h - img_height
+            end_h -= off
+            start_h -= off
+        if end_w > img_width:
+            off = end_w - img_width
+            end_w -= off
+            start_w -= off
 
-            crop_rect = (start_w, start_h, end_w, end_h)
+        crop_rect = (start_w, start_h, end_w, end_h)
 
-            box_center_x = (bboxes[:, 2] + bboxes[:, 0]) / 2.0
-            box_center_y = (bboxes[:, 3] + bboxes[:, 1]) / 2.0
+        box_center_x = (bboxes[:, 2] + bboxes[:, 0]) / 2.0
+        box_center_y = (bboxes[:, 3] + bboxes[:, 1]) / 2.0
 
-            mask_x = (box_center_x > crop_rect[0]) * (box_center_x < crop_rect[2])
-            mask_y = (box_center_y > crop_rect[1]) * (box_center_y < crop_rect[3])
-            mask = mask_x * mask_y
+        mask_x = (box_center_x > crop_rect[0]) * (box_center_x < crop_rect[2])
+        mask_y = (box_center_y > crop_rect[1]) * (box_center_y < crop_rect[3])
+        mask = mask_x * mask_y
 
-            bboxes = bboxes[mask]
-            bboxes[:, 0] -= crop_rect[0]
-            bboxes[:, 2] -= crop_rect[0]
-            bboxes[:, 1] -= crop_rect[1]
-            bboxes[:, 3] -= crop_rect[1]
-            labels = labels[mask]
+        bboxes = bboxes[mask]
+        bboxes[:, 0] -= crop_rect[0]
+        bboxes[:, 2] -= crop_rect[0]
+        bboxes[:, 1] -= crop_rect[1]
+        bboxes[:, 3] -= crop_rect[1]
+        labels = labels[mask]
 
-            # clip
-            bboxes[0] = bboxes[0].clip(min=0, max=crop_w)
-            bboxes[1] = bboxes[1].clip(min=0, max=crop_h)
-            bboxes[2] = bboxes[2].clip(min=0, max=crop_w)
-            bboxes[3] = bboxes[3].clip(min=0, max=crop_h)
+        # clip
+        bboxes[:, 0] = bboxes[:, 0].clip(min=0, max=crop_w)
+        bboxes[:, 1] = bboxes[:, 1].clip(min=0, max=crop_h)
+        bboxes[:, 2] = bboxes[:, 2].clip(min=0, max=crop_w)
+        bboxes[:, 3] = bboxes[:, 3].clip(min=0, max=crop_h)
 
-            keep = (bboxes[:, 3] > bboxes[:, 1]) & (bboxes[:, 2] > bboxes[:, 0])
-            bboxes = bboxes[keep]
-            labels = labels[keep]
+        keep = (bboxes[:, 3] > bboxes[:, 1]) & (bboxes[:, 2] > bboxes[:, 0])
+        bboxes = bboxes[keep]
+        labels = labels[keep]
 
-            if len(bboxes) == 0:
-                continue
-            break
 
         # new_target = BoxList(boxes, (crop_w, crop_h), mode='xyxy')
         # new_target.add_field('labels', labels)
