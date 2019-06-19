@@ -179,10 +179,10 @@ class RandomResizeCrop(object):
 
         if origin_height > origin_width:
             img_width = min_size
-            img_height = int(min_size / img_width * origin_height)
+            img_height = int(min_size / origin_width * origin_height)
         else:
             img_height = min_size
-            img_width = int(min_size / img_height * origin_width)
+            img_width = int(min_size / origin_height * origin_width)
 
         image = F.resize(image, (img_height, img_width))
 
@@ -254,13 +254,13 @@ class RandomResizeCrop(object):
         image = F.crop(image, start_h, start_w, crop_h, crop_w)
 
         # pad to fixed shape
-        if img_height > img_width:
-            target_h, target_w = self.size[0], self.size[1]
-        else:
-            target_w, target_h = self.size[0], self.size[1]
+        # if img_height > img_width:
+        #    target_h, target_w = self.size[0], self.size[1]
+        #else:
+        #    target_w, target_h = self.size[0], self.size[1]
 
-        padding = (0, 0, target_h - crop_h, target_w - crop_w)
-        image = F.pad(image, padding)
+        # padding = (0, 0, target_h - crop_h, target_w - crop_w)
+        # image = F.pad(image, padding)
         image = np.array(image).astype(np.float32)
         return image, bboxes, labels
 

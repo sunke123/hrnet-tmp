@@ -1,7 +1,7 @@
 # model settings
 model = dict(
     type='FasterRCNN',
-    pretrained='hrnetv2_pretrained/hrnetv2_w18_imagenet_pretrained.pth',
+    pretrained='/mnt/workspace/hrnetv2_pretrained/hrnetv2_w18_imagenet_pretrained.pth',
     backbone=dict(
         type='HighResolutionNet',
         extra=dict(
@@ -113,7 +113,7 @@ test_cfg = dict(
 # dataset settings
 # if you use zip format to store all images of coco, please use CocoZipDataset
 dataset_type = 'CocoZipDataset'
-data_root = '/hdfs/resrchvc/v-tich/cls/data/coco/'
+data_root = '/mnt/workspace/data/coco/'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=False)
 # else
@@ -126,10 +126,15 @@ data = dict(
     train=dict(
         type=dataset_type,
         ann_file=data_root + 'annotations/instances_train2017.json',
-        img_prefix=data_root + 'images/train2017.zip',
-        img_scale=(1333, 800),
+        img_prefix=data_root + 'train2017.zip',
+        img_scale=(1200, 800),
         img_norm_cfg=img_norm_cfg,
-        size_divisor=32,
+        size_divisor=0,
+        extra_aug=dict(
+            rand_resize_crop=dict(
+                scales=[[1400, 600], [1400, 800], [1400, 1000]],
+                size=[1200, 800]
+            )),
         flip_ratio=0.5,
         with_mask=False,
         with_crowd=True,
@@ -137,7 +142,7 @@ data = dict(
     val=dict(
         type=dataset_type,
         ann_file=data_root + 'annotations/instances_val2017.json',
-        img_prefix=data_root + 'images/val2017.zip',
+        img_prefix=data_root + 'val2017.zip',
         img_scale=(1333, 800),
         img_norm_cfg=img_norm_cfg,
         size_divisor=32,
@@ -158,7 +163,7 @@ data = dict(
         test_mode=True))
 # optimizer
 # if you use 8 GPUs for training, please change lr to 0.02
-optimizer = dict(type='SGD', lr=0.01, momentum=0.9, weight_decay=0.0001)
+optimizer = dict(type='SGD', lr=0.02, momentum=0.9, weight_decay=0.0001)
 optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2))
 # learning policy
 lr_config = dict(
@@ -180,7 +185,7 @@ log_config = dict(
 total_epochs = 12
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/faster_rcnn_hrnetv2p_w18_1x'
+work_dir = './work_dirs/faster_rcnn_hrnetv2p_w18_rand_resize_crop_1x'
 load_from = None
 resume_from = None
 workflow = [('train', 1)]
