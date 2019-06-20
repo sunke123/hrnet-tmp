@@ -252,10 +252,10 @@ class RandomResizeCrop(object):
         bboxes = bboxes[keep]
         labels = labels[keep]
 
-
         # new_target = BoxList(boxes, (crop_w, crop_h), mode='xyxy')
         # new_target.add_field('labels', labels)
         # new_target.clip_to_image(remove_empty=True)
+
         image = F.crop(image, start_h, start_w, crop_h, crop_w)
 
         # pad to fixed shape

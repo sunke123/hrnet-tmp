@@ -250,7 +250,8 @@ class ZipDataset(Dataset):
         if self.extra_aug is not None:
             img, gt_bboxes, gt_labels = self.extra_aug(img, gt_bboxes,
                                                        gt_labels)
-
+        if len(gt_bboxes) == 0:
+            return None
         # apply transforms
         flip = True if np.random.rand() < self.flip_ratio else False
         # img_scale = random_scale(self.img_scales)  # sample a scale
