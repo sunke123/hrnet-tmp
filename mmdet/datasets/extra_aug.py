@@ -171,19 +171,22 @@ class RandomResizeCrop(object):
         scale = self.scales[scale_ind]
         origin_max_size = float(max(origin_width, origin_height))
         origin_min_size = float(min(origin_width, origin_height))
-        min_size = scale[1]
         max_size = scale[0]
+        min_size = scale[1]
 
         if origin_max_size / origin_min_size * min_size > max_size:
             min_size = int(round(max_size / origin_max_size * origin_min_size))
-
+        ratio = 1.0
         if origin_height > origin_width:
             img_width = min_size
             img_height = int(min_size / origin_width * origin_height)
+            ratio = min_size / origin_width
         else:
             img_height = min_size
             img_width = int(min_size / origin_height * origin_width)
+            ratio = min_size / origin_height
 
+        bboxes = ratio * bboxes
         image = F.resize(image, (img_height, img_width))
 
         # random crop
@@ -196,7 +199,7 @@ class RandomResizeCrop(object):
         crop_h = min(crop_h, img_height)
 
         # random select a box
-        rand_index = np.random.randint(len(bboxes))# random.randint(0, len(bboxes)-1)
+        rand_index = np.random.randint(len(bboxes))
         box = bboxes[rand_index]
         # box = random.choice(bboxes)
         ctr_x = ((box[0] + box[2]) / 2.0).item()
