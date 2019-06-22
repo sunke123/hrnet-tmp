@@ -128,7 +128,7 @@ data = dict(
         type=dataset_type,
         ann_file=data_root + 'annotations/instances_train2017.json',
         img_prefix=data_root + 'images/train2017.zip',
-        img_scale=[(1600, 600), (1600, 1000)],
+        img_scale=[(1600, 1000), (1000, 600), (1333, 800)],
         img_norm_cfg=img_norm_cfg,
         size_divisor=32,
         flip_ratio=0.5,
@@ -167,7 +167,7 @@ lr_config = dict(
     warmup='linear',
     warmup_iters=500,
     warmup_ratio=1.0 / 3,
-    step=[8, 11])
+    step=[20, 23])
 checkpoint_config = dict(interval=1)
 # yapf:disable
 log_config = dict(
@@ -178,10 +178,10 @@ log_config = dict(
     ])
 # yapf:enable
 # runtime settings
-total_epochs = 12
+total_epochs = 24
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/faster_rcnn_hrnetv2p_w18_mstrain_sync_16batch_continuous_pad_1x'
+work_dir = './work_dirs/faster_rcnn_hrnetv2p_w18_mstrain_sync_16batch_pad_2x'
 load_from = None
 resume_from = None
 workflow = [('train', 1)]

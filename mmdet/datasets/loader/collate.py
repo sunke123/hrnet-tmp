@@ -6,7 +6,7 @@ from torch.utils.data.dataloader import default_collate
 from mmcv.parallel import DataContainer
 
 
-def collate(batch, samples_per_gpu=1, pad_img=False):
+def collate(batch, samples_per_gpu=1, pad_size=None):
     """Puts each data field into a tensor/DataContainer with outer dimension
     batch size.
 
@@ -36,18 +36,18 @@ def collate(batch, samples_per_gpu=1, pad_img=False):
                 # TODO: handle tensors other than 3d
                 assert batch[i].dim() == 3
                 c, h, w = batch[0].size()
-                print("H: {} W: {}".format(h, w))
                 for sample in batch[i:i + samples_per_gpu]:
                     assert c == sample.size(0)
                     h = max(h, sample.size(1))
                     w = max(w, sample.size(2))
-                aspect_ratio = h / w
-                if aspect_ratio >= 1.0:
-                   h = 1216
-                   w = 800
-                else:
-                   h = 800
-                   w = 1216
+                if pad_size is not None:
+                    aspect_ratio = h / w
+                    if aspect_ratio >= 1.0:
+                       h = pad_size[0]
+                       w = pad_size[1]
+                    else:
+                       h = pad_size[0]
+                       w = pad_size[1]
                 padded_samples = [
                     F.pad(
                         sample.data,
@@ -63,10 +63,10 @@ def collate(batch, samples_per_gpu=1, pad_img=False):
         return DataContainer(stacked, batch[0].stack, batch[0].padding_value)
     elif isinstance(batch[0], collections.Sequence):
         transposed = zip(*batch)
-        return [collate(samples, samples_per_gpu) for samples in transposed]
+        return [collate(samples, samples_per_gpu, pad_size=pad_size) for samples in transposed]
     elif isinstance(batch[0], collections.Mapping):
         return {
-            key: collate([d[key] for d in batch], samples_per_gpu)
+            key: collate([d[key] for d in batch], samples_per_gpu, pad_size=pad_size)
             for key in batch[0]
         }
     else:

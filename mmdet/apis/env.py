@@ -28,8 +28,7 @@ def _init_dist_pytorch(backend, **kwargs):
     num_gpus = torch.cuda.device_count()
     torch.cuda.set_device(rank % num_gpus)
     dist.init_process_group(backend='nccl',
-                            init_method='tcp://10.0.6.7:23333',
-                            rank=rank, world_size=int(os.environ['WORLD_SIZE']))
+                            init_method='env://')
 
 
 def _init_dist_mpi(backend, **kwargs):

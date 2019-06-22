@@ -17,7 +17,7 @@ def build_dataloader(dataset,
                      workers_per_gpu,
                      num_gpus=1,
                      dist=True,
-                     pad=False,
+                     pad_size=None,
                      **kwargs):
     if dist:
         rank, world_size = get_dist_info()
@@ -38,7 +38,7 @@ def build_dataloader(dataset,
         batch_size=batch_size,
         sampler=sampler,
         num_workers=num_workers,
-        collate_fn=partial(collate, samples_per_gpu=imgs_per_gpu, pad_img=pad),
+        collate_fn=partial(collate, samples_per_gpu=imgs_per_gpu, pad_size=pad_size),
         pin_memory=False,
         **kwargs)
 

@@ -1,7 +1,7 @@
 # model settings
 model = dict(
     type='FasterRCNN',
-    pretrained='hrnetv2_pretrained/hrnetv2_w18_imagenet_pretrained.pth',
+    pretrained='/mnt/workspace/hrnetv2_w32_imagenet_pretrained.pth',
     backbone=dict(
         type='SyncHighResolutionNet',
         extra=dict(
@@ -17,25 +17,26 @@ model = dict(
                 num_branches=2,
                 block='BASIC',
                 num_blocks=(4, 4),
-                num_channels=(18, 36),
+                num_channels=(32, 64),
                 fuse_method='SUM'),
             stage3=dict(
                 num_modules=4,
                 num_branches=3,
                 block='BASIC',
                 num_blocks=(4, 4, 4),
-                num_channels=(18, 36, 72),
+                num_channels=(32, 64, 128),
                 fuse_method='SUM'),
             stage4=dict(
                 num_modules=3,
                 num_branches=4,
                 block='BASIC',
                 num_blocks=(4, 4, 4, 4),
-                num_channels=(18, 36, 72, 144),
+                num_channels=(32, 64, 128, 256),
                 fuse_method='SUM'))),
     neck=dict(
         type='HRFPN',
-        in_channels=[18, 36, 72, 144],
+        with_checkpoint=True,
+        in_channels=[32, 64, 128, 256],
         out_channels=256),
     rpn_head=dict(
         type='RPNHead',
@@ -113,7 +114,7 @@ test_cfg = dict(
 # dataset settings
 # if you use zip format to store all images of coco, please use CocoZipDataset
 dataset_type = 'CocoZipDataset'
-data_root = '/hdfs/resrchvc/v-tich/cls/data/coco/'
+data_root = '/mnt/workspace/data/coco/'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=False)
 # else
@@ -121,14 +122,14 @@ img_norm_cfg = dict(
 # data_root = 'data/coco/'
 # img_norm_cfg = dict(mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 data = dict(
-    imgs_per_gpu=4,
-    workers_per_gpu=8,
+    imgs_per_gpu=2,
+    workers_per_gpu=2,
     pad_size=(1600, 1024),
     train=dict(
         type=dataset_type,
         ann_file=data_root + 'annotations/instances_train2017.json',
-        img_prefix=data_root + 'images/train2017.zip',
-        img_scale=[(1600, 600), (1600, 1000)],
+        img_prefix=data_root + 'train2017.zip',
+        img_scale=[(1600, 1000), (1000, 600), (1333, 800)],
         img_norm_cfg=img_norm_cfg,
         size_divisor=32,
         flip_ratio=0.5,
@@ -138,7 +139,7 @@ data = dict(
     val=dict(
         type=dataset_type,
         ann_file=data_root + 'annotations/instances_val2017.json',
-        img_prefix=data_root + 'images/val2017.zip',
+        img_prefix=data_root + 'val2017.zip',
         img_scale=(1333, 800),
         img_norm_cfg=img_norm_cfg,
         size_divisor=32,
@@ -149,7 +150,7 @@ data = dict(
     test=dict(
         type=dataset_type,
         ann_file=data_root + 'annotations/instances_val2017.json',
-        img_prefix=data_root + 'images/val2017.zip',
+        img_prefix=data_root + 'val2017.zip',
         img_scale=(1333, 800),
         img_norm_cfg=img_norm_cfg,
         size_divisor=32,
@@ -167,7 +168,7 @@ lr_config = dict(
     warmup='linear',
     warmup_iters=500,
     warmup_ratio=1.0 / 3,
-    step=[8, 11])
+    step=[20, 23])
 checkpoint_config = dict(interval=1)
 # yapf:disable
 log_config = dict(
@@ -178,10 +179,10 @@ log_config = dict(
     ])
 # yapf:enable
 # runtime settings
-total_epochs = 12
+total_epochs = 24
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/faster_rcnn_hrnetv2p_w18_mstrain_sync_16batch_continuous_pad_1x'
+work_dir = './work_dirs/faster_rcnn_hrnetv2p_w32_mstrain_syncbn_2x'
 load_from = None
 resume_from = None
 workflow = [('train', 1)]

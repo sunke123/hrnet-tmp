@@ -61,12 +61,17 @@ def train_detector(model,
 
 def _dist_train(model, dataset, cfg, validate=False):
     # prepare data loaders
+    try:
+        pad_size = cfg.data.pad_size
+        print("using padding size")
+    except:
+        pad_size = None
     data_loaders = [
         build_dataloader(
             dataset,
             cfg.data.imgs_per_gpu,
             cfg.data.workers_per_gpu,
-            pad=cfg.data.pad_img,
+            pad=pad_size,
             dist=True)
     ]
     rank = int(os.environ['RANK'])     
