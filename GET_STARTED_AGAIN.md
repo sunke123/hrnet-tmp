@@ -10,4 +10,4 @@
 
 [X] Multi-scale training (SimpleDet version): we've implemented multi-scale training strategy used in [SimpleDet](https://github.com/TuSimple/simpledet)
 
-[X] Multi-node & multi-gpu training: we've tested our code when training with multiple nodes (ONLY on AZURE!). Providing a MASTER IP and PORT. 
+[X] Multi-node & multi-gpu training: we've tested our code when training with multiple nodes (ONLY on AZURE!). Providing a MASTER IP and PORT. Training without SyncBN will reach normal results while training with SyncBN will fail.
