@@ -89,3 +89,23 @@ see [configs/hrnet/faster_rcnn_hrnetv2p_w18_randresizecrop_1x.py](configs/hrnet/
         with_crowd=True,
         with_label=True),
 ````
+
+
+#### Multi-node & multi-gpu training
+
+**Note: ONLY on AZURE!**
+
+1. Set environment variables
+
+````bash
+export NCCL_SOCKET_IFNAME=eth0 设置network interface
+export NCCL_DEBUG=INFO  提供更多的nccl信息
+export NCCL_IB_DISABLE=1 关掉IB
+```` 
+
+2. Running (different node has different `node_rank`)
+
+````bash
+python -m torch.distributed.launch --nproc_per_node=4 --nnodes=2 --node_rank=0 tools/train.py <CONFIG-FILE> --launcher pytorch --master_ip_port tcp://xx.xx.xx.xx:1234 
+````
+
