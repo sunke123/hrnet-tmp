@@ -25,10 +25,14 @@ def init_dist(launcher, backend='nccl', **kwargs):
 def _init_dist_pytorch(backend, **kwargs):
     # TODO: use local_rank instead of rank % num_gpus
     rank = int(os.environ['RANK'])
+    world_size = int(os.environ['WORLD_SIZE'])
     num_gpus = torch.cuda.device_count()
+
     torch.cuda.set_device(rank % num_gpus)
     dist.init_process_group(backend='nccl',
-                            init_method='env://')
+                            init_method=kwargs['_init_method'],
+                            rank=rank,
+                            world_size=world_size)
 
 
 def _init_dist_mpi(backend, **kwargs):

@@ -36,6 +36,7 @@ def parse_args():
         default='none',
         help='job launcher')
     parser.add_argument('--local_rank', type=int, default=0)
+    parser.add_argument('--master_ip_port', type=str, default='env://')
     args = parser.parse_args()
 
     return args
@@ -67,6 +68,7 @@ def main():
         distributed = False
     else:
         distributed = True
+        cfg.dist_params['_init_method'] = args.master_ip_port
         init_dist(args.launcher, **cfg.dist_params)
 
     # init logger before other steps
