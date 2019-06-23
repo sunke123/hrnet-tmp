@@ -6,7 +6,7 @@
 
 - [X] **SyncBN**: using NVIDIA/apex SyncBN
 
-- [X] **Multi-scale training (fixed)**: training detection models with SyncBN and multi-scale training will crash to terrible results (mAP=0.0 or no boxes are predicted). Fortunatedly, we've investigated a method to solve it by padding input images of different scales(`600*1000`, `800*1333`, `1000*1600`) to a fixed scale `**1000*1600**` and keeping the original aspect ratios.
+- [X] **Multi-scale training (pad)**: training detection models with SyncBN and multi-scale training will crash to terrible results (mAP=0.0 or no boxes are predicted). Fortunatedly, we've investigated a method to solve it by padding input images of different scales(`600*1000`, `800*1333`, `1000*1600`) to a fixed scale `**1000*1600**` and keeping the original aspect ratios.
 
 - [X] **Multi-scale training (SimpleDet version)**: we've implemented multi-scale training strategy used in [SimpleDet](https://github.com/TuSimple/simpledet)
 
@@ -34,8 +34,17 @@ see [configs/hrnet/faster_rcnn_hrnetv2p_w18_sync_1x.py](configs/hrnet/faster_rcn
 
 change `backbone.type` to `SyncHighResolutionNet`.
 
+* results
 
-#### Multi-scale training (fixed)
+| Backbone | LR Schd | SyncBN | mAP |
+| :--: | :--: | :--: | :--: |
+| HRNetV2-W18 | 1x | No  |  36.1 |
+| HRNetV2-W18 | 1x | Yes | 37.2 |
+
+
+
+
+#### Multi-scale training (pad)
 
 see [configs/hrnet/faster_rcnn_hrnetv2p_w18_syncbn_16batch_mstrain_pad_1x.py](configs/hrnet/faster_rcnn_hrnetv2p_w18_syncbn_16batch_mstrain_pad_1x.py)
 
@@ -59,6 +68,17 @@ data = dict(
         with_crowd=True,
         with_label=True),
 ````
+
+* results
+
+| Backbone | LR Schd | SyncBN | MSTrain | mAP |
+| :--: | :--: | :--: | :--: | :--: |
+| HRNetV2-W18 | 1x | No | Yes | 36.5 |
+| HRNetV2-W18 | 1x | Yes | Yes | 37.6 |
+| HRNetV2-W18 | 2x | Yes | Yes | 39.4 |
+| HRNetV2-W32 | 1x | Yes | Yes | 41.0 |
+| HRNetV2-W18 | 2x | Yes | Yes | 42.6 |
+
 
 #### Multi-scale training (SimpleDet version)
 
@@ -89,6 +109,14 @@ see [configs/hrnet/faster_rcnn_hrnetv2p_w18_randresizecrop_1x.py](configs/hrnet/
         with_crowd=True,
         with_label=True),
 ````
+
+* results
+
+| Backbone | LR Schd | SyncBN | MSTrain | mAP |
+| :--: | :--: | :--: | :--: | :--: |
+| HRNetV2-W18 | 1x | No | Yes | 36.3 |
+| HRNetV2-W18 | 1x | Yes | Yes | 37.6 |
+
 
 
 #### Multi-node & multi-gpu training
