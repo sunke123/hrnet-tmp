@@ -42,6 +42,13 @@ change `backbone.type` to `SyncHighResolutionNet`.
 | HRNetV2-W18 | 1x | Yes | 37.2 |
 
 
+* relevant files
+
+````
+mmdet/models/backbones/hrnet_sync.py
+mmdet/models/utils/norm.py
+````
+
 
 
 #### Multi-scale training (pad)
@@ -78,6 +85,11 @@ data = dict(
 | HRNetV2-W18 | 2x | Yes | Yes | 39.4 |
 | HRNetV2-W32 | 1x | Yes | Yes | 41.0 |
 | HRNetV2-W18 | 2x | Yes | Yes | 42.6 |
+
+````
+mmdet/datasets/loader/collate.py
+mmdet/datasets/loader/build_loader.py
+````
 
 
 #### Multi-scale training (SimpleDet version)
@@ -118,6 +130,15 @@ see [configs/hrnet/faster_rcnn_hrnetv2p_w18_randresizecrop_1x.py](configs/hrnet/
 | HRNetV2-W18 | 1x | Yes | Yes | 37.6 |
 
 
+* relevant files
+
+````
+mmdet/datasets/loader/collate.py
+mmdet/datasets/loader/build_loader.py
+mmdet/datasets/zip_dataset.py
+mmdet/datasets/extra_aug.py
+````
+
 
 #### Multi-node & multi-gpu training
 
@@ -137,3 +158,9 @@ export NCCL_IB_DISABLE=1 关掉IB
 python -m torch.distributed.launch --nproc_per_node=4 --nnodes=2 --node_rank=0 tools/train.py <CONFIG-FILE> --launcher pytorch --master_ip_port tcp://xx.xx.xx.xx:1234 
 ````
 
+
+* relevant files
+
+````
+mmdet/apis/env.py
+````
