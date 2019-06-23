@@ -6,7 +6,7 @@
 
 - [X] **SyncBN**: using NVIDIA/apex SyncBN
 
-- [X] **Multi-scale training (pad)**: training detection models with SyncBN and multi-scale training will crash to terrible results (mAP=0.0 or no boxes are predicted). Fortunatedly, we've investigated a method to solve it by padding input images of different scales(`600*1000`, `800*1333`, `1000*1600`) to a fixed scale `**1000*1600**` and keeping the original aspect ratios.
+- [X] **Multi-scale training (pad)**: training detection models with SyncBN and multi-scale training will crash to terrible results (mAP=0.0 or no boxes are predicted). Fortunatedly, we've investigated a method to solve it by padding input images of different scales(`600*1000`, `800*1333`, `1000*1600`) to a fixed scale `1000*1600` and keeping the original aspect ratios.
 
 - [X] **Multi-scale training (SimpleDet version)**: we've implemented multi-scale training strategy used in [SimpleDet](https://github.com/TuSimple/simpledet)
 
@@ -78,13 +78,13 @@ data = dict(
 
 * results
 
-| Backbone | LR Schd | SyncBN | MSTrain | mAP |
-| :--: | :--: | :--: | :--: | :--: |
-| HRNetV2-W18 | 1x | No | Yes | 36.5 |
-| HRNetV2-W18 | 1x | Yes | Yes | 37.6 |
-| HRNetV2-W18 | 2x | Yes | Yes | 39.4 |
-| HRNetV2-W32 | 1x | Yes | Yes | 41.0 |
-| HRNetV2-W18 | 2x | Yes | Yes | 42.6 |
+| Backbone | LR Schd | SyncBN | MSTrain | mAP | model |
+| :--: | :--: | :--: | :--: | :--: | :--: |
+| HRNetV2-W18 | 1x | No | Yes | 36.5 | |
+| HRNetV2-W18 | 1x | Yes | Yes | 37.6 | [model](https://1drv.ms/u/s!Ao8vsd6OusckbJjMoiThi4DojsY?e=9qS2Mh) |
+| HRNetV2-W18 | 2x | Yes | Yes | 39.4 | [model](https://1drv.ms/u/s!Ao8vsd6OusckbYWE2UwMf5fas7A?e=oi0lmh) | 
+| HRNetV2-W32 | 1x | Yes | Yes | 41.0 | [model](https://1drv.ms/u/s!Ao8vsd6Ousckab_Y65bdvmP9Qjk?e=LvWihi) |
+| HRNetV2-W32 | 2x | Yes | Yes | 42.6 | [model](https://1drv.ms/u/s!Ao8vsd6OusckanYRdh_HXQRGFjQ?e=hBtvfo) |
 
 ````
 mmdet/datasets/loader/collate.py
@@ -124,10 +124,10 @@ see [configs/hrnet/faster_rcnn_hrnetv2p_w18_randresizecrop_1x.py](configs/hrnet/
 
 * results
 
-| Backbone | LR Schd | SyncBN | MSTrain | mAP |
-| :--: | :--: | :--: | :--: | :--: |
-| HRNetV2-W18 | 1x | No | Yes | 36.3 |
-| HRNetV2-W18 | 1x | Yes | Yes | 37.6 |
+| Backbone | LR Schd | SyncBN | MSTrain | mAP | model |
+| :--: | :--: | :--: | :--: | :--: | :--: |
+| HRNetV2-W18 | 1x | No | Yes | 36.3 | |
+| HRNetV2-W18 | 1x | Yes | Yes | 37.6 | [model](https://1drv.ms/u/s!Ao8vsd6Ouscka25nRsz4nzxb9P8?e=SydXL0) |
 
 
 * relevant files
