@@ -103,7 +103,7 @@ see [configs/hrnet/faster_rcnn_hrnetv2p_w18_randresizecrop_1x.py](configs/hrnet/
 ````python
     imgs_per_gpu=2,
     workers_per_gpu=4,
-    pad_img=(1216, 800),
+    pad_size=(1216, 800),
     train=dict(
         type=dataset_type,
         ann_file=data_root + 'annotations/instances_train2017.json',
