@@ -1,7 +1,5 @@
 import argparse
 
-
-from IPython import embed
 import torch
 import mmcv
 from mmcv.runner import load_checkpoint, parallel_test, obj_from_dict
@@ -11,10 +9,10 @@ from mmdet import datasets
 from mmdet.core import results2json, coco_eval
 from mmdet.datasets import build_dataloader
 from mmdet.models import build_detector, detectors
-from IPython import embed
+
 
 def single_test(model, data_loader, show=False):
-    model.train()
+    model.eval()
     results = []
     dataset = data_loader.dataset
     prog_bar = mmcv.ProgressBar(len(dataset))

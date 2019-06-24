@@ -1,7 +1,5 @@
 import torch.nn as nn
 
-from IPython import embed
-
 from .bbox_head import BBoxHead
 from ..registry import HEADS
 from ..utils import ConvModule
